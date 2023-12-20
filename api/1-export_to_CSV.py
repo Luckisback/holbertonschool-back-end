@@ -1,31 +1,38 @@
 #!/usr/bin/python3
-"""script using a REST API, for a given employee ID,
-   returns information about his/her TODO list progress
-   export data in the CSV format.
+"""using a rest API, for a given employee ID, returns
+information about his/her TODO list progress
 """
-
 import csv
 import requests
-import sys
+from sys import argv
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Usage: python3 {__file__} employee_id(int)")
-        sys.exit(1)
 
-    BASE_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = int(sys.argv[1])
+    rows = []
+    # collects todos infos in a dict
+    r_todos = requests.get('https://jsonplaceholder.typicode.com/todos/')
+    data_todos = r_todos.json()
 
-    EMPLOYEE_TODOS = requests.get(f"{BASE_URL}/users/{EMPLOYEE_ID}/todos",
-                                  params={"_expand": "user"})
-    TODO_DATA = EMPLOYEE_TODOS.json()
-    EMPLOYEE_NAME = TODO_DATA[0]["user"]["username"]
+    # collect users infos in a dict
+    r_users = requests.get('https://jsonplaceholder.typicode.com/users/')
+    data_users = r_users.json()
 
-    fileName = f"{EMPLOYEE_ID}.csv"
-    with open(fileName, "w", newline="") as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-        for task in TODO_DATA:
-            writer.writerow(
-                [EMPLOYEE_ID, EMPLOYEE_NAME, str(task["completed"]),
-                 task["title"]]
-            )
+    # gets the name of the employee
+    for i in data_users:
+        if i.get("id") == int(argv[1]):
+            employee = i.get("username")
+
+    # creates data in csv format
+    with open(argv[1] + '.csv', 'w', encoding='UTF8', newline='') as file:
+        writer = csv.writer(file, quoting=csv.QUOTE_ALL)
+
+        # write results in rows
+        for i in data_todos:
+            rows = []
+            if i.get("userId") == int(argv[1]):
+                rows.append(i.get("userId"))
+                rows.append(employee)
+                rows.append(i.get("completed"))
+                rows.append(i.get("title"))
+                writer.writerow(rows)
