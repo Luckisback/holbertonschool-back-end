@@ -12,12 +12,7 @@ user_id = int(sys.argv[1])
 
 user_url = "https://jsonplaceholder.typicode.com/users"
 user_info = requests.get(f"{user_url}/{user_id}").json()
-
 EMPLOYEE_NAME = user_info.get("name")
-
-if EMPLOYEE_NAME is None:
-    print(f"Employee with ID {user_id} not found.")
-    sys.exit(1)
 
 todo_url = "https://jsonplaceholder.typicode.com/todos"
 todo_info = requests.get(todo_url).json()
