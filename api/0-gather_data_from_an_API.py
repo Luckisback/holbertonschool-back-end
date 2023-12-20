@@ -1,41 +1,38 @@
 #!/usr/bin/python3
-"""using a rest API, for a given employee ID, returns
-information about his/her TODO list progress
+"""script using a REST API, for a given employee ID,
+   returns information about his/her TODO list progress
 """
-import requests
-from sys import argv
 
+import requests
+import sys
 
 if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print(f"Usage: python3 {__file__} employee_id(int)")
+        sys.exit(1)
 
-    TOTAL_NUMBER_OF_TASKS = 0
+    BASE_URL = "https://jsonplaceholder.typicode.com"
+    EMPLOYEE_ID = int(sys.argv[1])
+
+    # Fetch  todo list of an employee
+    EMPLOYEE_TODOS = requests.get(f"{BASE_URL}/users/{EMPLOYEE_ID}/todos",
+                                  params={"_expand": "user"})
+    TODO_DATA = EMPLOYEE_TODOS.json()
+    EMPLOYEE_NAME = TODO_DATA[0]["user"]["name"]
+
+    # Calculate TODO list and completed todo list
+    TOTAL_NUMBER_OF_TASKS = len(TODO_DATA)
     NUMBER_OF_DONE_TASKS = 0
     TASK_TITLE = []
-    # collects todos infos in a dict
-    r_todos = requests.get('https://jsonplaceholder.typicode.com/todos/')
-    data_todos = r_todos.json()
+    for task in TODO_DATA:
+        if task["completed"]:
+            NUMBER_OF_DONE_TASKS += 1
+            TASK_TITLE.append(task["title"])
 
-    # collect users infos in a dict
-    r_users = requests.get('https://jsonplaceholder.typicode.com/users/')
-    data_users = r_users.json()
+    # Display progress information
+    print(f"Employee {EMPLOYEE_NAME} is done with tasks"
+          f"({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
 
-    for i in data_todos:
-        # check how many total tasks there are for the given user id
-        if i.get("userId") == int(argv[1]):
-            TOTAL_NUMBER_OF_TASKS += 1
-            # check how many tasks he has done
-            if i.get("completed") is True:
-                NUMBER_OF_DONE_TASKS += 1
-                # appends the title of the completed task to a list
-                TASK_TITLE.append(i.get("title"))
-
-    # collect the name of the employee
-    for i in data_users:
-        if i.get("id") == int(argv[1]):
-            employee = i.get("name")
-
-    # print result to the correct format
-    print("Employee {} is done with tasks({}/{}):".format(
-        employee, NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
-    for titles in TASK_TITLE:
-        print("\t {}".format(titles))
+    # Display titles of completed tasks
+    for title in TASK_TITLE:
+        print("\t ", title)
