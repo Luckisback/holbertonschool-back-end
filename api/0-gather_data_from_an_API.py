@@ -14,13 +14,13 @@ if __name__ == "__main__":
     BASE_URL = "https://jsonplaceholder.typicode.com"
     EMPLOYEE_ID = int(sys.argv[1])
 
-    # Fetch  todo list of an employee
+    """ Fetch  todo list of an employee """
     EMPLOYEE_TODOS = requests.get(f"{BASE_URL}/users/{EMPLOYEE_ID}/todos",
                                   params={"_expand": "user"})
     TODO_DATA = EMPLOYEE_TODOS.json()
     EMPLOYEE_NAME = TODO_DATA[0]["user"]["name"]
 
-    # Calculate TODO list and completed todo list
+    """ Calculate TODO list and completed todo list """
     TOTAL_NUMBER_OF_TASKS = len(TODO_DATA)
     NUMBER_OF_DONE_TASKS = 0
     TASK_TITLE = []
@@ -29,10 +29,10 @@ if __name__ == "__main__":
             NUMBER_OF_DONE_TASKS += 1
             TASK_TITLE.append(task["title"])
 
-    # Display progress information
+    """ Display progress information """
     print(f"Employee {EMPLOYEE_NAME} is done with tasks"
           f"({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
 
-    # Display titles of completed tasks
+    """ Display titles of completed tasks """
     for title in TASK_TITLE:
         print("\t ", title)
