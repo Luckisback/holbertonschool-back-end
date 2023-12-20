@@ -1,8 +1,14 @@
+#!/usr/bin/python3
+
+""" The scrip that retrieves informations
+    from an API link
+"""
+
 import json
 import requests
 import sys
 
-user_id = int(sys.argv[1])  # Convert user_id to an integer
+user_id = int(sys.argv[1])
 
 user_url = "https://jsonplaceholder.typicode.com/users"
 user_info = requests.get(f"{user_url}/{user_id}").json()
