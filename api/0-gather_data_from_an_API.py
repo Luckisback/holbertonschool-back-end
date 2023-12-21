@@ -1,38 +1,33 @@
 #!/usr/bin/python3
-"""script using a REST API, for a given employee ID,
-   returns information about his/her TODO list progress
-"""
+"""Returns info about his/her TODO list progress by giving employee ID"""
 
-import requests
-import sys
+from requests import get
+from sys import argv
+
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Usage: python3 {__file__} employee_id(int)")
-        sys.exit(1)
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
+    completed = 0
+    total = 0
+    tasks = []
+    response2 = get('https://jsonplaceholder.typicode.com/users/')
+    data2 = response2.json()
 
-    BASE_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = int(sys.argv[1])
+    for i in data2:
+        if i.get('id') == int(argv[1]):
+            employee = i.get('name')
 
-    """ Fetch  todo list of an employee """
-    EMPLOYEE_TODOS = requests.get(f"{BASE_URL}/users/{EMPLOYEE_ID}/todos",
-                                  params={"_expand": "user"})
-    TODO_DATA = EMPLOYEE_TODOS.json()
-    EMPLOYEE_NAME = TODO_DATA[0]["user"]["name"]
+    for i in data:
+        if i.get('userId') == int(argv[1]):
+            total += 1
 
-    """ Calculate TODO list and completed todo list """
-    TOTAL_NUMBER_OF_TASKS = len(TODO_DATA)
-    NUMBER_OF_DONE_TASKS = 0
-    TASK_TITLE = []
-    for task in TODO_DATA:
-        if task["completed"]:
-            NUMBER_OF_DONE_TASKS += 1
-            TASK_TITLE.append(task["title"])
+            if i.get('completed') is True:
+                completed += 1
+                tasks.append(i.get('title'))
 
-    """ Display progress information """
-    print(f"Employee {EMPLOYEE_NAME} is done with tasks"
-          f"({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
+    print("Employee {} is done with tasks({}/{}):".format(employee,
+                                                          completed, total))
 
-    """ Display titles of completed tasks """
-    for title in TASK_TITLE:
-        print("\t ", title)
+    for i in tasks:
+        print("\t {}".format(i))
